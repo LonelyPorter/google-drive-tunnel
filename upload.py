@@ -7,9 +7,10 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
 
 def main():
@@ -44,13 +45,20 @@ def main():
 
         if not items:
             print('No files found.')
-            return
-        print('Files:')
+        else:
+          print('Files:')
         for item in items:
             print(u'{0} ({1})'.format(item['name'], item['id']))
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
         print(f'An error occurred: {error}')
+
+    # upload
+    file_metadata = {'name': 'disc.jpg'}
+    media = MediaFileUpload('disc.jpg',
+                            mimetype='image/jpeg')
+    file = service.files().create(body=file_metadata, media_body=media,
+                                  fields='id').execute()
 
 
 if __name__ == '__main__':
