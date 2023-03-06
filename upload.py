@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os.path
+import io
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -8,6 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -60,6 +62,22 @@ def main():
     file = service.files().create(body=file_metadata, media_body=media,
                                   fields='id').execute()
 
+    
+    # download
+    file_id = file['id'] # id of the file just uploaded
+
+    request = service.files().get_media(fileId=file_id)
+    file = io.BytesIO()
+    downloader = MediaIoBaseDownload(file, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+        print(F'Download {int(status.progress() * 100)}.')
+
+    byte = file.getvalue()
+    f = open("output.jpg", 'wb')
+    f.write(byte)
+    f.close()
 
 if __name__ == '__main__':
     main()
