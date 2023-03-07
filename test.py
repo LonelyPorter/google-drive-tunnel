@@ -42,7 +42,7 @@ def main():
 
         # Call the Drive v3 API
         results = service.files().list(
-            pageSize=10, fields="nextPageToken, files(id, name)").execute()
+            pageSize=10, fields="nextPageToken, files(id, name, mimeType)").execute()
         items = results.get('files', [])
 
         if not items:
@@ -50,7 +50,8 @@ def main():
         else:
           print('Files:')
         for item in items:
-            print(u'{0} ({1})'.format(item['name'], item['id']))
+            # print(u'{0} ({1})'.format(item['name'], item['id']))
+            print(item)
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
         print(f'An error occurred: {error}')
@@ -62,7 +63,6 @@ def main():
     file = service.files().create(body=file_metadata, media_body=media,
                                   fields='id').execute()
 
-    
     # download
     file_id = file['id'] # id of the file just uploaded
 
