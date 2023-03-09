@@ -22,6 +22,14 @@ def upload(service, files: List[str], target_folder_name: str = None) -> bool:
             print(
                 f'Folder "{target_folder_name}" exists with ID: {results["files"][0]["id"]}')
             target_folder_id = results["files"][0]["id"]
+
+            # delete all files in target folder
+            query = "'{}' in parents and trashed = false".format(target_folder_id)
+            results = service.files().list(q=query, fields='nextPageToken, files(id, name)').execute()
+
+            for file in results.get("files", []):
+                service.files().delete(fileId=file["id"]).execute()
+
         else:
             print(f'Folder "{target_folder_name}" does not exist')
             print("Creating now...")
