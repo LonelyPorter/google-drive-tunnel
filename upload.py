@@ -34,14 +34,16 @@ def upload(service, files: List[str], target_folder_name: str = None) -> bool:
 
     # upload
     for file in files:
+        if not os.path.exists(file):
+            print(f"Files not exists at path {file}, skipping...")
+            continue
         metadata = {'name' : os.path.basename(file), 'parents': [target_folder_id]}
-        # MediaFileUpload file < 5mb ?
         media = MediaFileUpload(file, mimetype='image/jpeg', resumable=True)
         service.files().create(body=metadata, media_body=media, fields='id').execute()
 
 if __name__ == "__main__":
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
-    files = ['pictures/disc.jpg']
+    files = ['pictures/disc.jpg', 'pictures/big.png']
     upload(service, files, 'Secrect Pictures')
     print("Upload Finish!")
