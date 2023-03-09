@@ -43,5 +43,5 @@ if __name__ == "__main__":
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
     files = ['pictures/disc.jpg']
-    upload(service, files, ['Secrect Pictures'])
+    upload(service, files, 'Secrect Pictures')
     print("Upload Finish!")
