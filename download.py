@@ -10,7 +10,7 @@ from googleapiclient.http import MediaIoBaseDownload
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 
-def download(from_folder: str, to_folder: str = "downloads") -> bool:
+def download(from_folder: str, to_folder: str = "downloads", key: int = 0) -> bool:
     if not os.path.exists(to_folder):
        os.makedirs(to_folder)
 
@@ -46,7 +46,10 @@ def download(from_folder: str, to_folder: str = "downloads") -> bool:
              print("Download {}% for file '{}'.".format(int(status.progress() * 100), file_name))
 
           with open(file_path, 'wb') as f:
-             f.write(buffer.getvalue())
+             data = bytearray(buffer.getvalue())
+             for i, v in enumerate(data):
+                data[i] = v ^ key
+             f.write(data)
 
           print("File '{}' downloaded to '{}'.".format(file_name, file_path))
 
@@ -60,5 +63,5 @@ def download(from_folder: str, to_folder: str = "downloads") -> bool:
 if __name__ == "__main__":
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
-    download('Secrect Pictures')
+    download('Secrect Pictures', key=128)
 

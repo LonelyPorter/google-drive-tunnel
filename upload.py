@@ -9,7 +9,7 @@ from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 
 # for now are jpg files
-def upload(service, files: List[str], target_folder_name: str = None) -> bool:
+def upload(service, files: List[str], target_folder_name: str = None, key: int = 0) -> bool:
     # check if targe folder exists, get id if so
     target_folder_id = None
     try:
@@ -46,12 +46,22 @@ def upload(service, files: List[str], target_folder_name: str = None) -> bool:
             print(f"Files not exists at path {file}, skipping...")
             continue
         metadata = {'name' : os.path.basename(file), 'parents': [target_folder_id]}
-        media = MediaFileUpload(file, mimetype='image/jpeg', resumable=True)
+
+        # write the encrypt file to somewhere
+        with open(file, 'rb') as source_file, open('/tmp'+os.path.basename(file), 'wb') as dest_file :
+            data = source_file.read()
+            data = bytearray(data)
+            for i, v in enumerate(data):
+                data[i] = v ^ key
+
+            dest_file.write(data)
+
+        media = MediaFileUpload('/tmp'+os.path.basename(file), mimetype='image/jpeg', resumable=True)
         service.files().create(body=metadata, media_body=media, fields='id').execute()
 
 if __name__ == "__main__":
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
     files = ['pictures/disc.jpg', 'pictures/big.png']
-    upload(service, files, 'Secrect Pictures')
+    upload(service, files, 'Secrect Pictures', 128)
     print("Upload Finish!")
