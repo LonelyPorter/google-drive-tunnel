@@ -1,12 +1,12 @@
-# If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/drive']
-
 from typing import List
 import os
 from utils import authenticate
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
+
+# If modifying these scopes, delete the file token.json.
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # for now are jpg files
 def upload(service, files: List[str], target_folder_name: str = None, key: int = 0) -> bool:
@@ -62,6 +62,13 @@ def upload(service, files: List[str], target_folder_name: str = None, key: int =
 if __name__ == "__main__":
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
-    files = ['pictures/disc.jpg', 'pictures/big.png']
+    
+    upload_folder = 'uploads'
+    files = []
+    for file_name in os.listdir(upload_folder):
+        file_path = os.path.join(upload_folder, file_name)
+        if os.path.isfile(file_path):
+            files.append(file_path)
+
     upload(service, files, 'Secrect Pictures', 128)
     print("Upload Finish!")
