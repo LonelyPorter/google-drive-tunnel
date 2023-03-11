@@ -1,3 +1,6 @@
+# This code is based on the Google Drive API and is subject to the Apache 2.0 license.
+# Copyright (c) [2023], Google LLC. All rights reserved.
+
 from typing import List
 import os
 import io

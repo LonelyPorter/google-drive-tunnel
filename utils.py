@@ -1,3 +1,6 @@
+# This code is based on the Google Drive API and is subject to the Apache 2.0 license.
+# Copyright (c) [2023], Google LLC. All rights reserved.
+
 import os
 from typing import List
 from google.oauth2.credentials import Credentials
