@@ -3,7 +3,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 
 from typing import List
 import os
-from google_utils import authenticate
+from utils import authenticate
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError

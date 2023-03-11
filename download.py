@@ -1,7 +1,7 @@
 from typing import List
 import os
 import io
-from google_utils import authenticate
+from utils import authenticate
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
