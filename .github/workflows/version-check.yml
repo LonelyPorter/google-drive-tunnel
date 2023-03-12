@@ -1,0 +1,11 @@
+# For now this relys on human update version correctly
+name: version-check
+run-name: Version Check
+on: 
+  pull_request:
+    
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: LonelyPorter/porter-actions/version-check@main
