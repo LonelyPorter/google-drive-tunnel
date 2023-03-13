@@ -1,6 +1,10 @@
 # This code is based on the Google Drive API and is subject to the Apache 2.0 license.
 # Copyright (c) [2023], Google LLC. All rights reserved.
 
+"""
+This module provides utility functions used by other programs
+"""
+
 import os
 from typing import List
 from google.oauth2.credentials import Credentials
@@ -9,6 +13,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 def authenticate(scopes: List[str], secrect_file_path: str = 'credentials.json') -> Credentials:
+    """
+    Client Authenticate
+    """
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -24,6 +31,6 @@ def authenticate(scopes: List[str], secrect_file_path: str = 'credentials.json')
                 secrect_file_path, scopes)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.json', 'w') as token:
+        with open('token.json', 'w', encoding='utf-8') as token:
             token.write(creds.to_json())
     return creds
