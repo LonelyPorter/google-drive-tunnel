@@ -4,6 +4,7 @@
 """ Upload Script """
 
 import os
+import sys
 from typing import List
 
 from googleapiclient.discovery import build
@@ -15,13 +16,15 @@ from utils import authenticate
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
-
+# pylint: disable=too-many-locals
 def upload(service, files: List[str], target_folder_name: str = None, key: int = 0) -> bool:
     """ Upload files to target folder on Google Drive (for now are jpg files) """
     # check if targe folder exists, get id if so
     target_folder_id = None
     try:
-        query = f"mimeType='application/vnd.google-apps.folder' and trashed = false and name='{target_folder_name}'"
+        query = f"mimeType='application/vnd.google-apps.folder' \
+            and trashed = false and name='{target_folder_name}'"
+        # pylint: disable=maybe-no-member
         results = service.files().list(
             q=query, fields='nextPageToken, files(id, name)').execute()
 
@@ -44,11 +47,10 @@ def upload(service, files: List[str], target_folder_name: str = None, key: int =
             print("Creating now...")
             metadata = {'name': target_folder_name,
                         'mimeType': 'application/vnd.google-apps.folder'}
-            folder = service.files().create(body=metadata, fields='id').execute()
-            target_folder_id = folder['id']
+            target_folder_id = service.files().create(body=metadata, fields='id').execute()['id']
     except HttpError as error:
         print(f'An error occurred: {error}')
-        exit(1)
+        sys.exit(1)
 
     # upload
     for file in files:
@@ -59,7 +61,9 @@ def upload(service, files: List[str], target_folder_name: str = None, key: int =
             target_folder_id]}
 
         # write the encrypt file to somewhere
-        with open(file, 'rb') as source_file, open('/tmp'+os.path.basename(file), 'wb') as dest_file:
+        with open(file, 'rb') as source_file, \
+                open('/tmp'+os.path.basename(file), 'wb') as dest_file:
+
             data = source_file.read()
             data = bytearray(data)
             for i, val in enumerate(data):
@@ -69,19 +73,23 @@ def upload(service, files: List[str], target_folder_name: str = None, key: int =
 
         media = MediaFileUpload(
             '/tmp'+os.path.basename(file), mimetype='image/jpeg', resumable=True)
+        # pylint: disable=maybe-no-member
         service.files().create(body=metadata, media_body=media, fields='id').execute()
 
-
-if __name__ == "__main__":
+def main():
+    """Main Function"""
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
 
-    UPLOAD_FOLDER = 'uploads'
+    upload_folder = 'uploads'
     files = []
-    for file_name in os.listdir(UPLOAD_FOLDER):
-        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+    for file_name in os.listdir(upload_folder):
+        file_path = os.path.join(upload_folder, file_name)
         if os.path.isfile(file_path):
             files.append(file_path)
 
     upload(service, files, 'Secrect Pictures', 128)
     print("Upload Finish!")
+
+if __name__ == "__main__":
+    main()

@@ -15,14 +15,16 @@ from utils import authenticate
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
-
-def download(from_folder: str, to_folder: str = "downloads", key: int = 0) -> bool:
+# pylint: disable=too-many-locals
+def download(service, from_folder: str, to_folder: str = "downloads", key: int = 0) -> bool:
     """ Download files from <from_folder> to <to_folder> """
     if not os.path.exists(to_folder):
         os.makedirs(to_folder)
 
     try:
-        query = f"mimeType='application/vnd.google-apps.folder' and trashed = false and name='{from_folder}'"
+        query = f"mimeType='application/vnd.google-apps.folder' \
+            and trashed = false and name='{from_folder}'"
+        # pylint: disable=maybe-no-member
         results = service.files().list(
             q=query, fields='nextPageToken, files(id, name)').execute()
 
@@ -52,11 +54,11 @@ def download(from_folder: str, to_folder: str = "downloads", key: int = 0) -> bo
                 status, done = downloader.next_chunk()
                 print(f"Download {int(status.progress() * 100)}% for file '{file_name}'")
 
-            with open(file_path, 'wb') as f:
+            with open(file_path, 'wb') as file:
                 data = bytearray(buffer.getvalue())
                 for i, val in enumerate(data):
                     data[i] = val ^ key
-                f.write(data)
+                file.write(data)
 
             print(f"File '{file_name}' downloaded to '{file_path}'.")
 
@@ -66,8 +68,11 @@ def download(from_folder: str, to_folder: str = "downloads", key: int = 0) -> bo
 
     return True
 
-
-if __name__ == "__main__":
+def main():
+    """Main Function"""
     creds = authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
-    download('Secrect Pictures', key=128)
+    download(service, 'Secrect Pictures', key=128)
+
+if __name__ == "__main__":
+    main()
