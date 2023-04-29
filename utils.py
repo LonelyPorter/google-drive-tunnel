@@ -9,6 +9,7 @@ import os
 from typing import List
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 
@@ -25,7 +26,13 @@ def authenticate(scopes: List[str], secrect_file_path: str = 'credentials.json')
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            try:
+                creds.refresh(Request())
+            except RefreshError as error:
+                print(f"Refresh failed with error:\n{error}")
+                print("Delete token and continue to log in")
+                os.remove('token.json')
+                return authenticate(scopes, secrect_file_path)
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 secrect_file_path, scopes)
