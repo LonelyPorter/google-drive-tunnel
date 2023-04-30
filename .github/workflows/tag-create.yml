@@ -1,0 +1,14 @@
+name: Tag Create
+run-name: Tag Create
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  tag-create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: LonelyPorter/porter-actions/git-tags@main
+      - name: Publish Tags
+        run: |
+          git push origin --tags

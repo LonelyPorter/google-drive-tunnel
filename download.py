@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
-from utils import authenticate
+import utils
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -70,9 +70,9 @@ def download(service, from_folder: str, to_folder: str = "downloads", key: int =
 
 def main():
     """Main Function"""
-    creds = authenticate(SCOPES)
+    creds = utils.authenticate(SCOPES)
     service = build('drive', 'v3', credentials=creds)
-    download(service, 'Secrect Pictures', key=128)
+    download(service, 'Secrect Pictures', key=utils.get_key_from_cfg())
 
 if __name__ == "__main__":
     main()
