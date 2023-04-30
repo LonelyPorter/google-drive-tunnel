@@ -6,7 +6,10 @@ This module provides utility functions used by other programs
 """
 
 import os
+import json
+import re
 from typing import List
+import tomllib as tb
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
@@ -41,3 +44,41 @@ def authenticate(scopes: List[str], secrect_file_path: str = 'credentials.json')
         with open('token.json', 'w', encoding='utf-8') as token:
             token.write(creds.to_json())
     return creds
+
+
+CFG = "project.toml"
+
+
+def get_key_from_cfg() -> int:
+    """
+    Return Encryption Key from project.toml
+    """
+    with open(CFG, mode='rb') as file:
+        project = tb.load(file)
+        key = project['Encrption']['key']
+
+    return key
+
+
+CREDENTIALS = 'credentials.json'
+
+
+def get_key_from_cred() -> int:
+    """"
+    Return Encryption Key from credentials.json
+    """
+    with open(CREDENTIALS, 'rb') as file:
+        data = json.load(file)
+        client_id = data['installed']['client_id']
+
+    match = re.match(r'\d{3}', client_id)
+    key = 0
+    if match:
+        key = int(match.group(0)) % 256
+
+    return key
+
+
+if __name__ == '__main__':
+    print(get_key_from_cfg())
+    print(get_key_from_cred())
